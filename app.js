@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const https = require('https')
 const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('./util/request')
@@ -135,11 +136,22 @@ fs.readdirSync(path.join(__dirname, 'module'))
     })
   })
 
-const port = process.env.PORT || 3000
+const privateKey = fs.readFileSync('./https/youbaobao_xyz.key')
+const pem = fs.readFileSync('./https/youbaobao_xyz.pem')
+const credentials = {
+  key: privateKey,
+  cert: pem,
+}
+
+const httpsServer = https.createServer(credentials, app)
+const port = process.env.PORT || 8001
 const host = process.env.HOST || ''
 
-app.server = app.listen(port, host, () => {
-  console.log(`server running @ http://${host ? host : 'localhost'}:${port}`)
+// app.server = app.listen(port, host, () => {
+//   console.log(`server running @ http://${host ? host : 'localhost'}:${port}`)
+// })
+httpsServer.listen(port, function () {
+  console.log(`server running @ https://${host ? host : 'localhost'}:${port}`)
 })
 
 module.exports = app
